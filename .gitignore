@@ -1,0 +1,11 @@
+*.csv
+*.log
+__pycache__/
+*.pyc
+.venv/
+venv/
+load_progress.txt
+oct_2025_raw.csv
+test_500.csv
+data_h1_2025.csv
+*.png
