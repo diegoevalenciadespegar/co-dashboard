@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CO Dashboard — Seguimiento de Ventas</title>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #141413;
+            --bg-light: #faf9f5;
+            --bg-card: #ffffff;
+            --gray-mid: #b0aea5;
+            --gray-light: #e8e6dc;
+            --accent-orange: #d97757;
+            --accent-blue: #6a9bcc;
+            --accent-green: #788c5d;
+            --text-positive: #2e7d32;
+            --text-negative: #c62828;
+            --border: #e0ddd4;
+            --shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Lora', Georgia, serif;
+            background: var(--bg-light);
+            color: var(--bg-dark);
+            min-height: 100vh;
+        }
+        .header {
+            background: var(--bg-dark);
+            color: var(--bg-light);
+            padding: 20px 40px;
+        }
+        .header h1 {
+            font-family: 'Poppins', Arial, sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header p { font-size: 14px; opacity: 0.7; margin-top: 4px; }
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .filters-bar {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-mid);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Lora', Georgia, serif;
+            background: var(--bg-light);
+            color: var(--bg-dark);
+            cursor: pointer;
+            min-width: 140px;
+        }
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        .btn-apply {
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', Arial, sans-serif;
+            transition: opacity 0.2s;
+        }
+        .btn-apply:hover { opacity: 0.9; }
+        .btn-clear {
+            background: transparent;
+            color: var(--gray-mid);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Poppins', Arial, sans-serif;
+        }
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        .card-title {
+            font-family: 'Poppins', Arial, sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title i { color: var(--accent-orange); }
+        .date-info {
+            font-size: 12px;
+            color: var(--gray-mid);
+            margin-bottom: 12px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .date-info span { display: flex; gap: 4px; }
+        .date-info .label { font-weight: 600; }
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            text-align: right;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border);
+            font-family: 'Poppins', Arial, sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-mid);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        th:first-child { text-align: left; }
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-light);
+            text-align: right;
+            white-space: nowrap;
+        }
+        td:first-child { text-align: left; font-weight: 500; }
+        .total-row {
+            font-weight: 700;
+            border-top: 2px solid var(--bg-dark);
+            background: var(--gray-light);
+        }
+        .total-row td { font-weight: 700; }
+        .positive { color: var(--text-positive); }
+        .negative { color: var(--text-negative); }
+        .positive::before { content: "\u25B2 "; font-size: 10px; }
+        .negative::before { content: "\u25BC "; font-size: 10px; }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray-mid);
+        }
+        .loading i { font-size: 32px; margin-bottom: 12px; display: block; }
+        .error-msg {
+            background: #ffeef0;
+            border: 1px solid #ffcdd2;
+            border-radius: 8px;
+            padding: 16px 20px;
+            color: var(--text-negative);
+            margin-bottom: 20px;
+        }
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .kpi-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        .kpi-card .label {
+            font-size: 12px;
+            color: var(--gray-mid);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .kpi-card .value {
+            font-family: 'Poppins', Arial, sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .kpi-card .delta { font-size: 13px; margin-top: 4px; }
+        .no-data { color: var(--gray-mid); font-style: italic; }
+        @media (max-width: 900px) {
+            .kpi-cards { grid-template-columns: repeat(2, 1fr); }
+            .filters-bar { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-chart-line"></i> CO Dashboard — Seguimiento de Ventas</h1>
+        <p>Análisis unificado de venta semanal | Datos actualizados diariamente</p>
+    </div>
+
+    <div class="container">
+        {% if error %}
+            <div class="error-msg">
+                <strong>Error:</strong> {{ error }}
+                <p style="margin-top:8px; font-size:13px;">Verifica que la base de datos esté conectada.</p>
+            </div>
+        {% else %}
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label>Semana</label>
+                <select id="week">
+                    {% for w in filter_options.weeks %}
+                        <option value="{{ w.label }}">{{ w.label }} — {{ w.start[:10] }} al {{ w.end[:10] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Marca</label>
+                <select id="marca">
+                    <option value="">Todas</option>
+                    {% for m in filter_options.marcas %}
+                        <option value="{{ m }}">{{ m }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>País</label>
+                <select id="pais">
+                    <option value="">Todos</option>
+                    {% for p in filter_options.paises %}
+                        <option value="{{ p }}">{{ p }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Canal</label>
+                <select id="canal">
+                    <option value="">Todos</option>
+                    {% for c in filter_options.canales %}
+                        <option value="{{ c }}">{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Producto</label>
+                <select id="producto">
+                    <option value="">Todos</option>
+                    {% for p in filter_options.productos %}
+                        <option value="{{ p }}">{{ p }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button class="btn-apply" onclick="loadData()">Aplicar</button>
+            <button class="btn-clear" onclick="clearFilters()">Limpiar</button>
+        </div>
+
+        <div class="kpi-cards" id="kpi-cards"></div>
+
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-table"></i> Venta por Marca
+            </div>
+            <div class="date-info" id="date-info"></div>
+            <div class="table-wrapper">
+                <div id="table-container">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Cargando datos...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        const filterOptions = {{ filter_options | tojson }};
+
+        if (filterOptions.weeks && filterOptions.weeks.length > 0) {
+            document.getElementById('week').value = filterOptions.weeks[filterOptions.weeks.length - 1].label;
+        }
+
+        function fmtMoney(v) {
+            if (v >= 1000000) return '$' + (v / 1000000).toFixed(1) + 'M';
+            if (v >= 1000) return '$' + (v / 1000).toFixed(1) + 'K';
+            return '$' + Math.round(v).toLocaleString();
+        }
+        function fmtNum(v) { return Math.round(v).toLocaleString(); }
+        function fmtPct(v) {
+            if (v === null || v === undefined) return '<span class="no-data">—</span>';
+            const sign = v >= 0 ? '+' : '';
+            return sign + v.toFixed(1) + '%';
+        }
+        function fmtPctRaw(v) { return v.toFixed(1) + '%'; }
+        function classPct(v) {
+            if (v === null || v === undefined) return 'no-data';
+            return v >= 0 ? 'positive' : 'negative';
+        }
+
+        function loadData() {
+            const params = new URLSearchParams();
+            const fields = ['week', 'marca', 'pais', 'canal', 'producto'];
+            fields.forEach(f => {
+                const val = document.getElementById(f).value;
+                if (val) params.append(f, val);
+            });
+
+            fetch('/api/data?' + params.toString())
+                .then(r => r.json())
+                .then(result => {
+                    if (result.error) {
+                        document.getElementById('table-container').innerHTML = '<div class="error-msg">' + result.error + '</div>';
+                        document.getElementById('kpi-cards').innerHTML = '';
+                        document.getElementById('date-info').innerHTML = '';
+                        return;
+                    }
+                    renderTable(result);
+                    renderKPIs(result);
+                    renderDates(result);
+                })
+                .catch(err => {
+                    document.getElementById('table-container').innerHTML = '<div class="error-msg">Error al cargar datos: ' + err + '</div>';
+                });
+        }
+
+        function renderDates(result) {
+            const d = result.dates;
+            if (!d || !d.current) { document.getElementById('date-info').innerHTML = ''; return; }
+            document.getElementById('date-info').innerHTML = `
+                <span><span class="label">Semana actual:</span> ${d.current.label} (${d.current.desde} → ${d.current.hasta})</span>
+                <span><span class="label">vs LY:</span> ${d.ly.label} (${d.ly.desde} → ${d.ly.hasta})</span>
+                <span><span class="label">vs L4W:</span> ${d.l4w.label}</span>
+            `;
+        }
+
+        function renderKPIs(result) {
+            const total = result.data.find(r => r.marca === 'Total');
+            if (!total) { document.getElementById('kpi-cards').innerHTML = ''; return; }
+
+            const cards = [
+                {label: 'GB Semana', value: fmtMoney(total.gb), delta: total.gb_vs_ly !== null ? `<span class="${classPct(total.gb_vs_ly)}">${fmtPct(total.gb_vs_ly)}</span> vs LY` : ''},
+                {label: 'FVM', value: fmtMoney(total.fvm), delta: total.fvm_vs_ly !== null ? `<span class="${classPct(total.fvm_vs_ly)}">${fmtPct(total.fvm_vs_ly)}</span> vs LY` : ''},
+                {label: 'Bookings', value: fmtNum(total.bookings), delta: total.bookings_vs_ly !== null ? `<span class="${classPct(total.bookings_vs_ly)}">${fmtPct(total.bookings_vs_ly)}</span> vs LY` : ''},
+                {label: 'ASP', value: fmtMoney(total.asp), delta: total.asp_vs_ly !== null ? `<span class="${classPct(total.asp_vs_ly)}">${fmtPct(total.asp_vs_ly)}</span> vs LY` : ''},
+            ];
+
+            document.getElementById('kpi-cards').innerHTML = cards.map(c => `
+                <div class="kpi-card">
+                    <div class="label">${c.label}</div>
+                    <div class="value">${c.value}</div>
+                    <div class="delta">${c.delta}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderTable(result) {
+            const data = result.data;
+            if (!data || data.length === 0) {
+                document.getElementById('table-container').innerHTML = '<p class="no-data">No hay datos para esta selección.</p>';
+                return;
+            }
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Marca</th>
+                            <th>GB</th>
+                            <th>Share</th>
+                            <th>GB vs LY</th>
+                            <th>FVM vs LY</th>
+                            <th>Bookings vs LY</th>
+                            <th>ASP vs LY</th>
+                            <th>GB vs L4W</th>
+                            <th>FVM vs L4W</th>
+                            <th>Bookings vs L4W</th>
+                            <th>ASP vs L4W</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            data.forEach(row => {
+                const isTotal = row.marca === 'Total';
+                const cls = isTotal ? 'total-row' : '';
+                html += `<tr class="${cls}">`;
+                html += `<td>${row.marca}</td>`;
+                html += `<td>${fmtMoney(row.gb)}</td>`;
+                html += `<td>${fmtPctRaw(row.share)}</td>`;
+                html += `<td class="${classPct(row.gb_vs_ly)}">${fmtPct(row.gb_vs_ly)}</td>`;
+                html += `<td class="${classPct(row.fvm_vs_ly)}">${fmtPct(row.fvm_vs_ly)}</td>`;
+                html += `<td class="${classPct(row.bookings_vs_ly)}">${fmtPct(row.bookings_vs_ly)}</td>`;
+                html += `<td class="${classPct(row.asp_vs_ly)}">${fmtPct(row.asp_vs_ly)}</td>`;
+                html += `<td class="${classPct(row.gb_vs_l4w)}">${fmtPct(row.gb_vs_l4w)}</td>`;
+                html += `<td class="${classPct(row.fvm_vs_l4w)}">${fmtPct(row.fvm_vs_l4w)}</td>`;
+                html += `<td class="${classPct(row.bookings_vs_l4w)}">${fmtPct(row.bookings_vs_l4w)}</td>`;
+                html += `<td class="${classPct(row.asp_vs_l4w)}">${fmtPct(row.asp_vs_l4w)}</td>`;
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            document.getElementById('table-container').innerHTML = html;
+        }
+
+        function clearFilters() {
+            const fields = ['marca', 'pais', 'canal', 'producto'];
+            fields.forEach(f => document.getElementById(f).value = '');
+            if (filterOptions.weeks && filterOptions.weeks.length > 0) {
+                document.getElementById('week').value = filterOptions.weeks[filterOptions.weeks.length - 1].label;
+            }
+            loadData();
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
