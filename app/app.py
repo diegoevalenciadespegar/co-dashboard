@@ -32,7 +32,7 @@ def query_db(sql, params=None):
 # --- Week helpers ---
 
 def get_weeks():
-    """Return list of available weeks (W1, W2, ...) based on data in DB."""
+    """Return list of available weeks (2026-W1, 2026-W2, ...) based on data in DB."""
     rows = query_db(
         "SELECT DISTINCT date_trunc('week', fecha_confirmacion) as week_start "
         "FROM ventas WHERE fecha_confirmacion IS NOT NULL ORDER BY 1"
@@ -43,7 +43,7 @@ def get_weeks():
         we = ws + timedelta(days=6)
         week_num = ws.isocalendar()[1]
         weeks.append({
-            'label': f"W{week_num}",
+            'label': f"{ws.isocalendar()[0]}-W{week_num}",
             'week_num': week_num,
             'year': ws.isocalendar()[0],
             'start': ws.isoformat(),
@@ -276,7 +276,7 @@ def get_comparisons(filters):
         'data': table_data,
         'dates': {
             'current': {'desde': cur_start, 'hasta': cur_end, 'label': selected['label']},
-            'ly': {'desde': ly_start, 'hasta': ly_end, 'label': f"W{cur_week_num} ({cur_year - 1})"},
+            'ly': {'desde': ly_start, 'hasta': ly_end, 'label': f"{cur_year - 1}-W{cur_week_num}"},
             'l4w': {
                 'desde': l4w_start,
                 'hasta': l4w_end,
