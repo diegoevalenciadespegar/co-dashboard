@@ -77,6 +77,7 @@
     </div>
     <div class="nav-tabs" style="display:flex;gap:4px;padding:0 40px;background:#141C2C;">
         <a href="/" style="padding:12px 24px;color:white;text-decoration:none;font-size:14px;font-weight:600;border-bottom:3px solid #17CDDA;">Tabla Semanal</a>
+        <a href="/daily" style="padding:12px 24px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:14px;font-weight:600;border-bottom:3px solid transparent;">Venta Diaria</a>
         <a href="/trend" style="padding:12px 24px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:14px;font-weight:600;border-bottom:3px solid transparent;">Tendencia 2026 vs 2025</a>
     </div>
     <div class="container">
@@ -121,9 +122,7 @@
         function cleanDate(d) { if (!d) return ''; return d.substring(0, 10); }
         function errorHtml(msg) { return '<div class="error-msg">Error al cargar datos: ' + msg + '</div>'; }
         function loadingHtml() { return '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Cargando datos...</p></div>'; }
-        function fetchJson(url) {
-            return fetch(url).then(r => { if (!r.ok) throw new Error('El servidor respondio ' + r.status); return r.json(); }).then(result => { if (result.error) throw new Error(result.error); return result; });
-        }
+        function fetchJson(url) { return fetch(url).then(r => { if (!r.ok) throw new Error('El servidor respondio ' + r.status); return r.json(); }).then(result => { if (result.error) throw new Error(result.error); return result; }); }
         function loadData() {
             const params = new URLSearchParams();
             ['week', 'marca', 'pais', 'canal', 'producto'].forEach(f => { const v = document.getElementById(f).value; if (v) params.append(f, v); });
@@ -157,7 +156,7 @@
         function renderTable(result) { const data = result.data; if (!data || data.length === 0) { document.getElementById('table-container').innerHTML = '<p class="no-data">No hay datos.</p>'; return; } document.getElementById('table-container').innerHTML = buildCompareTable(data, 'Marca', 'marca'); }
         function loadBreakdown() {
             const params = new URLSearchParams();
-            ['week', 'marca', 'pais'].forEach(f => { const v = document.getElementById(f).value; if (v) params.append(f, v); });
+            ['week', 'marca', 'pais', 'canal', 'producto'].forEach(f => { const v = document.getElementById(f).value; if (v) params.append(f, v); });
             document.getElementById('canal-container').innerHTML = loadingHtml(); document.getElementById('producto-container').innerHTML = loadingHtml();
             fetchJson('/api/breakdown?' + params.toString()).then(result => { renderBreakdownTable('canal-container', result.canal, 'Canal'); renderBreakdownTable('producto-container', result.producto, 'Producto'); }).catch(err => { document.getElementById('canal-container').innerHTML = errorHtml(err.message); document.getElementById('producto-container').innerHTML = errorHtml(err.message); });
         }
