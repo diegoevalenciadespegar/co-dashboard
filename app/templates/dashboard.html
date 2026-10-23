@@ -110,26 +110,32 @@
     </div>
     <script>
         const filterOptions = {{ filter_options | tojson }};
-        if (filterOptions.weeks && filterOptions.weeks.length > 0) { document.getElementById('week').value = filterOptions.weeks[0].label; }
+        if (filterOptions && filterOptions.weeks && filterOptions.weeks.length > 0) {
+            document.getElementById('week').value = filterOptions.weeks[0].label;
+        }
         function fmtMoney(v) { if (v >= 1000000) return '$' + (v/1000000).toFixed(1) + 'M'; if (v >= 1000) return '$' + (v/1000).toFixed(1) + 'K'; return '$' + Math.round(v).toLocaleString(); }
         function fmtNum(v) { return Math.round(v).toLocaleString(); }
         function fmtPct(v) { if (v === null || v === undefined) return '<span class="no-data">—</span>'; const s = v >= 0 ? '+' : ''; return s + v.toFixed(1) + '%'; }
         function fmtPctRaw(v) { return v.toFixed(1) + '%'; }
         function classPct(v) { if (v === null || v === undefined) return 'no-data'; return v >= 0 ? 'positive' : 'negative'; }
         function cleanDate(d) { if (!d) return ''; return d.substring(0, 10); }
+        function errorHtml(msg) { return '<div class="error-msg">Error al cargar datos: ' + msg + '</div>'; }
+        function loadingHtml() { return '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Cargando datos...</p></div>'; }
+        function fetchJson(url) {
+            return fetch(url).then(r => { if (!r.ok) throw new Error('El servidor respondio ' + r.status); return r.json(); }).then(result => { if (result.error) throw new Error(result.error); return result; });
+        }
         function loadData() {
             const params = new URLSearchParams();
-            ['week','marca','pais','canal','producto'].forEach(f => { const v = document.getElementById(f).value; if (v) params.append(f, v); });
-            fetch('/api/data?' + params.toString()).then(r => r.json()).then(result => {
-                if (result.error) { document.getElementById('table-container').innerHTML = '<div class="error-msg">' + result.error + '</div>'; document.getElementById('kpi-cards').innerHTML = ''; document.getElementById('date-info').innerHTML = ''; return; }
-                renderTable(result); renderKPIs(result); renderDates(result); loadBreakdown();
-            }).catch(err => { document.getElementById('table-container').innerHTML = '<div class="error-msg">Error: ' + err + '</div>'; });
+            ['week', 'marca', 'pais', 'canal', 'producto'].forEach(f => { const v = document.getElementById(f).value; if (v) params.append(f, v); });
+            document.getElementById('table-container').innerHTML = loadingHtml();
+            loadBreakdown();
+            fetchJson('/api/data?' + params.toString()).then(result => { renderTable(result); renderKPIs(result); renderDates(result); }).catch(err => { document.getElementById('table-container').innerHTML = errorHtml(err.message); document.getElementById('kpi-cards').innerHTML = ''; document.getElementById('date-info').innerHTML = ''; });
         }
         function renderDates(result) {
             const d = result.dates; if (!d || !d.current) { document.getElementById('date-info').innerHTML = ''; return; }
             let l4wLabel = d.l4w.label || '';
             if (l4wLabel.includes(' a ')) { const parts = l4wLabel.split(' a '); if (parts.length >= 2) l4wLabel = parts[0] + ' a ' + parts[parts.length - 1]; }
-            document.getElementById('date-info').innerHTML = '<span><span class="label">Semana actual:</span> <span class="val">' + d.current.label + '</span> (' + cleanDate(d.current.desde) + ' → ' + cleanDate(d.current.hasta) + ')</span><span><span class="label">vs LY:</span> <span class="val">' + d.ly.label + '</span> (' + cleanDate(d.ly.desde) + ' → ' + cleanDate(d.ly.hasta) + ')</span><span><span class="label">vs L4W:</span> <span class="val">' + l4wLabel + '</span></span>';
+            document.getElementById('date-info').innerHTML = '<span><span class="label">Semana actual:</span> <span class="val">' + d.current.label + '</span> (' + cleanDate(d.current.desde) + ' \u2192 ' + cleanDate(d.current.hasta) + ')</span><span><span class="label">vs LY:</span> <span class="val">' + d.ly.label + '</span> (' + cleanDate(d.ly.desde) + ' \u2192 ' + cleanDate(d.ly.hasta) + ')</span><span><span class="label">vs L4W:</span> <span class="val">' + l4wLabel + '</span></span>';
         }
         function renderKPIs(result) {
             const total = result.data.find(r => r.marca === 'Total'); if (!total) { document.getElementById('kpi-cards').innerHTML = ''; return; }
@@ -141,66 +147,22 @@
             ];
             document.getElementById('kpi-cards').innerHTML = cards.map(c => '<div class="kpi-card"><div class="left"><div class="label">' + c.label + '</div><div class="value">' + c.value + '</div></div><div class="right"><div class="delta-row"><span class="delta-label">vs LY</span> <span class="' + classPct(c.ly) + '">' + fmtPct(c.ly) + '</span></div><div class="delta-row"><span class="delta-label">vs L4W</span> <span class="' + classPct(c.l4w) + '">' + fmtPct(c.l4w) + '</span></div></div></div>').join('');
         }
-        function renderTable(result) {
-            const data = result.data; if (!data || data.length === 0) { document.getElementById('table-container').innerHTML = '<p class="no-data">No hay datos.</p>'; return; }
-            let html = '<table><thead><tr><th>Marca</th><th>GB</th><th>Share</th><th>GB vs LY</th><th>FVM vs LY</th><th>Bk vs LY</th><th>ASP vs LY</th><th>Sch vs LY</th><th>CVR vs LY</th><th>GB vs L4W</th><th>FVM vs L4W</th><th>Bk vs L4W</th><th>ASP vs L4W</th><th>Sch vs L4W</th><th>CVR vs L4W</th></tr></thead><tbody>';
-            data.forEach(row => {
-                const cls = row.marca === 'Total' ? 'total-row' : '';
-                html += '<tr class="' + cls + '"><td>' + row.marca + '</td><td>' + fmtMoney(row.gb) + '</td><td>' + fmtPctRaw(row.share) + '</td>';
-                html += '<td class="' + classPct(row.gb_vs_ly) + '">' + fmtPct(row.gb_vs_ly) + '</td>';
-                html += '<td class="' + classPct(row.fvm_vs_ly) + '">' + fmtPct(row.fvm_vs_ly) + '</td>';
-                html += '<td class="' + classPct(row.bookings_vs_ly) + '">' + fmtPct(row.bookings_vs_ly) + '</td>';
-                html += '<td class="' + classPct(row.asp_vs_ly) + '">' + fmtPct(row.asp_vs_ly) + '</td>';
-                html += '<td class="' + classPct(row.sch_vs_ly) + '">' + fmtPct(row.sch_vs_ly) + '</td>';
-                html += '<td class="' + classPct(row.cvr_vs_ly) + '">' + fmtPct(row.cvr_vs_ly) + '</td>';
-                html += '<td class="' + classPct(row.gb_vs_l4w) + '">' + fmtPct(row.gb_vs_l4w) + '</td>';
-                html += '<td class="' + classPct(row.fvm_vs_l4w) + '">' + fmtPct(row.fvm_vs_l4w) + '</td>';
-                html += '<td class="' + classPct(row.bookings_vs_l4w) + '">' + fmtPct(row.bookings_vs_l4w) + '</td>';
-                html += '<td class="' + classPct(row.asp_vs_l4w) + '">' + fmtPct(row.asp_vs_l4w) + '</td>';
-                html += '<td class="' + classPct(row.sch_vs_l4w) + '">' + fmtPct(row.sch_vs_l4w) + '</td>';
-                html += '<td class="' + classPct(row.cvr_vs_l4w) + '">' + fmtPct(row.cvr_vs_l4w) + '</td>';
-                html += '</tr>';
-            });
-            html += '</tbody></table>';
-            document.getElementById('table-container').innerHTML = html;
+        const COMPARE_HEADERS = '<th>GB</th><th>Share</th><th>GB vs LY</th><th>FVM vs LY</th><th>Bk vs LY</th><th>ASP vs LY</th><th>Sch vs LY</th><th>CVR vs LY</th><th>GB vs L4W</th><th>FVM vs L4W</th><th>Bk vs L4W</th><th>ASP vs L4W</th><th>Sch vs L4W</th><th>CVR vs L4W</th>';
+        const COMPARE_FIELDS = ['gb_vs_ly', 'fvm_vs_ly', 'bookings_vs_ly', 'asp_vs_ly', 'sch_vs_ly', 'cvr_vs_ly', 'gb_vs_l4w', 'fvm_vs_l4w', 'bookings_vs_l4w', 'asp_vs_l4w', 'sch_vs_l4w', 'cvr_vs_l4w'];
+        function buildCompareTable(data, label, nameKey) {
+            let html = '<table><thead><tr><th>' + label + '</th>' + COMPARE_HEADERS + '</tr></thead><tbody>';
+            data.forEach(row => { const name = row[nameKey]; const cls = name === 'Total' ? 'total-row' : ''; html += '<tr class="' + cls + '"><td>' + name + '</td><td>' + fmtMoney(row.gb) + '</td><td>' + fmtPctRaw(row.share) + '</td>'; COMPARE_FIELDS.forEach(f => { html += '<td class="' + classPct(row[f]) + '">' + fmtPct(row[f]) + '</td>'; }); html += '</tr>'; });
+            return html + '</tbody></table>';
         }
+        function renderTable(result) { const data = result.data; if (!data || data.length === 0) { document.getElementById('table-container').innerHTML = '<p class="no-data">No hay datos.</p>'; return; } document.getElementById('table-container').innerHTML = buildCompareTable(data, 'Marca', 'marca'); }
         function loadBreakdown() {
             const params = new URLSearchParams();
-            ['week','marca','pais'].forEach(f => { const v = document.getElementById(f).value; if (v) params.append(f, v); });
-            fetch('/api/breakdown?' + params.toString()).then(r => r.json()).then(result => {
-                if (result.error) return;
-                renderBreakdownTable('canal-container', result.canal, 'Canal');
-                renderBreakdownTable('producto-container', result.producto, 'Producto');
-            });
+            ['week', 'marca', 'pais'].forEach(f => { const v = document.getElementById(f).value; if (v) params.append(f, v); });
+            document.getElementById('canal-container').innerHTML = loadingHtml(); document.getElementById('producto-container').innerHTML = loadingHtml();
+            fetchJson('/api/breakdown?' + params.toString()).then(result => { renderBreakdownTable('canal-container', result.canal, 'Canal'); renderBreakdownTable('producto-container', result.producto, 'Producto'); }).catch(err => { document.getElementById('canal-container').innerHTML = errorHtml(err.message); document.getElementById('producto-container').innerHTML = errorHtml(err.message); });
         }
-        function renderBreakdownTable(containerId, data, label) {
-            if (!data || data.length === 0) { document.getElementById(containerId).innerHTML = '<p class="no-data">Sin datos</p>'; return; }
-            let html = '<table><thead><tr><th>' + label + '</th><th>GB</th><th>Share</th><th>GB vs LY</th><th>FVM vs LY</th><th>Bk vs LY</th><th>ASP vs LY</th><th>Sch vs LY</th><th>CVR vs LY</th><th>GB vs L4W</th><th>FVM vs L4W</th><th>Bk vs L4W</th><th>ASP vs L4W</th><th>Sch vs L4W</th><th>CVR vs L4W</th></tr></thead><tbody>';
-            data.forEach(row => {
-                const cls = row.name === 'Total' ? 'total-row' : '';
-                html += '<tr class="' + cls + '"><td>' + row.name + '</td><td>' + fmtMoney(row.gb) + '</td><td>' + fmtPctRaw(row.share) + '</td>';
-                html += '<td class="' + classPct(row.gb_vs_ly) + '">' + fmtPct(row.gb_vs_ly) + '</td>';
-                html += '<td class="' + classPct(row.fvm_vs_ly) + '">' + fmtPct(row.fvm_vs_ly) + '</td>';
-                html += '<td class="' + classPct(row.bookings_vs_ly) + '">' + fmtPct(row.bookings_vs_ly) + '</td>';
-                html += '<td class="' + classPct(row.asp_vs_ly) + '">' + fmtPct(row.asp_vs_ly) + '</td>';
-                html += '<td class="' + classPct(row.sch_vs_ly) + '">' + fmtPct(row.sch_vs_ly) + '</td>';
-                html += '<td class="' + classPct(row.cvr_vs_ly) + '">' + fmtPct(row.cvr_vs_ly) + '</td>';
-                html += '<td class="' + classPct(row.gb_vs_l4w) + '">' + fmtPct(row.gb_vs_l4w) + '</td>';
-                html += '<td class="' + classPct(row.fvm_vs_l4w) + '">' + fmtPct(row.fvm_vs_l4w) + '</td>';
-                html += '<td class="' + classPct(row.bookings_vs_l4w) + '">' + fmtPct(row.bookings_vs_l4w) + '</td>';
-                html += '<td class="' + classPct(row.asp_vs_l4w) + '">' + fmtPct(row.asp_vs_l4w) + '</td>';
-                html += '<td class="' + classPct(row.sch_vs_l4w) + '">' + fmtPct(row.sch_vs_l4w) + '</td>';
-                html += '<td class="' + classPct(row.cvr_vs_l4w) + '">' + fmtPct(row.cvr_vs_l4w) + '</td>';
-                html += '</tr>';
-            });
-            html += '</tbody></table>';
-            document.getElementById(containerId).innerHTML = html;
-        }
-        function clearFilters() {
-            ['marca','pais','canal','producto'].forEach(f => document.getElementById(f).value = '');
-            if (filterOptions.weeks && filterOptions.weeks.length > 0) document.getElementById('week').value = filterOptions.weeks[0].label;
-            loadData();
-        }
+        function renderBreakdownTable(containerId, data, label) { if (!data || data.length === 0) { document.getElementById(containerId).innerHTML = '<p class="no-data">Sin datos</p>'; return; } document.getElementById(containerId).innerHTML = buildCompareTable(data, label, 'name'); }
+        function clearFilters() { ['marca', 'pais', 'canal', 'producto'].forEach(f => document.getElementById(f).value = ''); if (filterOptions && filterOptions.weeks && filterOptions.weeks.length > 0) { document.getElementById('week').value = filterOptions.weeks[0].label; } loadData(); }
         loadData();
     </script>
 </body>
