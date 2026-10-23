@@ -14,7 +14,8 @@
         .header { background: linear-gradient(135deg, var(--desp-dark) 0%, var(--desp-dark-2) 100%); color: white; padding: 24px 40px; display: flex; align-items: center; gap: 16px; }
         .header-logo { width: 40px; height: 40px; background: var(--desp-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: var(--desp-dark); }
         .nav-tabs { display: flex; gap: 4px; padding: 0 40px; background: var(--desp-dark); }
-        .nav-tab { padding: 12px 24px; text-decoration: none; font-size: 14px; font-weight: 600; border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .nav-tab { padding: 12px 24px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 14px; font-weight: 600; border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .nav-tab:hover { color: white; }
         .nav-tab.active { color: white; border-bottom-color: var(--desp-primary); }
         .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
         .filters-bar { background: var(--bg-card); border-radius: 16px; padding: 18px 24px; margin-bottom: 20px; border: 1px solid var(--gray-border); display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
@@ -43,6 +44,7 @@
     </div>
     <div class="nav-tabs">
         <a href="/" class="nav-tab">Tabla Semanal</a>
+        <a href="/daily" class="nav-tab">Venta Diaria</a>
         <a href="/trend" class="nav-tab active">Tendencia 2026 vs 2025</a>
     </div>
     <div class="container">
