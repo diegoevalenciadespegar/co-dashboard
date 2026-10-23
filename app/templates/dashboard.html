@@ -5,434 +5,202 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CO Dashboard — Seguimiento de Ventas</title>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #141413;
-            --bg-light: #faf9f5;
-            --bg-card: #ffffff;
-            --gray-mid: #b0aea5;
-            --gray-light: #e8e6dc;
-            --accent-orange: #d97757;
-            --accent-blue: #6a9bcc;
-            --accent-green: #788c5d;
-            --text-positive: #2e7d32;
-            --text-negative: #c62828;
-            --border: #e0ddd4;
-            --shadow: 0 2px 8px rgba(0,0,0,0.06);
+            --desp-primary: #17CDDA; --desp-primary-dark: #0FB4C0; --desp-primary-light: #B0EFF3;
+            --desp-dark: #141C2C; --desp-dark-2: #1E2A42;
+            --bg-light: #F7F8FA; --bg-card: #FFFFFF;
+            --gray-mid: #8B95A6; --gray-light: #EDF0F5; --gray-border: #E2E8F0;
+            --text-positive: #16A34A; --text-negative: #DC2626;
+            --text-primary: #1A202C; --text-secondary: #64748B;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Lora', Georgia, serif;
-            background: var(--bg-light);
-            color: var(--bg-dark);
-            min-height: 100vh;
-        }
-        .header {
-            background: var(--bg-dark);
-            color: var(--bg-light);
-            padding: 20px 40px;
-        }
-        .header h1 {
-            font-family: 'Poppins', Arial, sans-serif;
-            font-size: 24px;
-            font-weight: 600;
-        }
-        .header p { font-size: 14px; opacity: 0.7; margin-top: 4px; }
-        .container {
-            max-width: 1400px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-        .filters-bar {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 16px 24px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            align-items: flex-end;
-        }
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .filter-group label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--gray-mid);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .filter-group select {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: 'Lora', Georgia, serif;
-            background: var(--bg-light);
-            color: var(--bg-dark);
-            cursor: pointer;
-            min-width: 140px;
-        }
-        .filter-group select:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-        }
-        .btn-apply {
-            background: var(--accent-orange);
-            color: white;
-            border: none;
-            padding: 8px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: 'Poppins', Arial, sans-serif;
-            transition: opacity 0.2s;
-        }
-        .btn-apply:hover { opacity: 0.9; }
-        .btn-clear {
-            background: transparent;
-            color: var(--gray-mid);
-            border: 1px solid var(--border);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: 'Poppins', Arial, sans-serif;
-        }
-        .card {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-        }
-        .card-title {
-            font-family: 'Poppins', Arial, sans-serif;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .card-title i { color: var(--accent-orange); }
-        .date-info {
-            font-size: 12px;
-            color: var(--gray-mid);
-            margin-bottom: 12px;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .date-info span { display: flex; gap: 4px; }
-        .date-info .label { font-weight: 600; }
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        table {
-            width: 100%;
-            min-width: 900px;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-        th {
-            text-align: right;
-            padding: 12px 16px;
-            border-bottom: 2px solid var(--border);
-            font-family: 'Poppins', Arial, sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--gray-mid);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            white-space: nowrap;
-        }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg-light); color: var(--text-primary); min-height: 100vh; }
+        .header { background: linear-gradient(135deg, var(--desp-dark) 0%, var(--desp-dark-2) 100%); color: white; padding: 24px 40px; display: flex; align-items: center; gap: 16px; }
+        .header-logo { width: 40px; height: 40px; background: var(--desp-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: var(--desp-dark); }
+        .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+        .header p { font-size: 13px; opacity: 0.6; margin-top: 2px; }
+        .nav-tabs { display: flex; gap: 4px; padding: 0 40px; background: var(--desp-dark); }
+        .nav-tab { padding: 12px 24px; text-decoration: none; font-size: 14px; font-weight: 600; border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+        .filters-bar { background: var(--bg-card); border-radius: 16px; padding: 18px 24px; margin-bottom: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-border); display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; gap: 5px; }
+        .filter-group label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; }
+        .filter-group select { padding: 9px 14px; border: 1.5px solid var(--gray-border); border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; font-weight: 500; background: var(--bg-card); color: var(--text-primary); cursor: pointer; min-width: 140px; }
+        .filter-group select:focus { outline: none; border-color: var(--desp-primary); box-shadow: 0 0 0 3px rgba(23,205,218,0.15); }
+        .btn-apply { background: var(--desp-primary); color: var(--desp-dark); border: none; padding: 9px 28px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+        .btn-apply:hover { background: var(--desp-primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(23,205,218,0.4); }
+        .btn-clear { background: transparent; color: var(--text-secondary); border: 1.5px solid var(--gray-border); padding: 9px 18px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif; }
+        .date-info-bar { display: flex; gap: 28px; flex-wrap: wrap; padding: 0 4px 16px; font-size: 13px; color: var(--text-secondary); }
+        .date-info-bar span { display: flex; align-items: center; gap: 6px; }
+        .date-info-bar .label { font-weight: 700; color: var(--text-primary); text-transform: uppercase; font-size: 11px; }
+        .date-info-bar .val { font-weight: 600; color: var(--desp-dark); }
+        .kpi-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+        .kpi-card { background: var(--bg-card); border-radius: 16px; padding: 22px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-border); position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: flex-start; }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--desp-primary); }
+        .kpi-card .left { flex: 1; }
+        .kpi-card .label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; font-weight: 600; }
+        .kpi-card .value { font-size: 30px; font-weight: 800; letter-spacing: -1px; color: var(--text-primary); }
+        .kpi-card .right { display: flex; flex-direction: column; gap: 6px; text-align: right; min-width: 80px; }
+        .kpi-card .delta-row { font-size: 12px; font-weight: 500; }
+        .kpi-card .delta-label { color: var(--text-secondary); font-size: 10px; text-transform: uppercase; }
+        .positive { color: var(--text-positive); font-weight: 600; }
+        .negative { color: var(--text-negative); font-weight: 600; }
+        .positive::before { content: "\25B2 "; font-size: 9px; }
+        .negative::before { content: "\25BC "; font-size: 9px; }
+        .no-data { color: var(--text-secondary); font-style: italic; }
+        .card { background: var(--bg-card); border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-border); }
+        .card-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
+        .card-title i { color: var(--desp-primary); }
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; min-width: 900px; border-collapse: collapse; font-size: 14px; }
+        th { text-align: right; padding: 14px 16px; border-bottom: 2px solid var(--gray-border); font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap; }
         th:first-child { text-align: left; }
-        td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--gray-light);
-            text-align: right;
-            white-space: nowrap;
-        }
-        td:first-child { text-align: left; font-weight: 500; }
-        .total-row {
-            font-weight: 700;
-            border-top: 2px solid var(--bg-dark);
-            background: var(--gray-light);
-        }
+        td { padding: 14px 16px; border-bottom: 1px solid var(--gray-light); text-align: right; white-space: nowrap; font-weight: 500; }
+        td:first-child { text-align: left; font-weight: 600; color: var(--text-primary); }
+        tr:hover td { background: var(--gray-light); }
+        .total-row { font-weight: 700; border-top: 2px solid var(--desp-primary); background: var(--desp-primary-light); }
         .total-row td { font-weight: 700; }
-        .positive { color: var(--text-positive); }
-        .negative { color: var(--text-negative); }
-        .positive::before { content: "\u25B2 "; font-size: 10px; }
-        .negative::before { content: "\u25BC "; font-size: 10px; }
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--gray-mid);
-        }
-        .loading i { font-size: 32px; margin-bottom: 12px; display: block; }
-        .error-msg {
-            background: #ffeef0;
-            border: 1px solid #ffcdd2;
-            border-radius: 8px;
-            padding: 16px 20px;
-            color: var(--text-negative);
-            margin-bottom: 20px;
-        }
-        .kpi-cards {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-        .kpi-card {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-        }
-        .kpi-card .label {
-            font-size: 12px;
-            color: var(--gray-mid);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-        .kpi-card .value {
-            font-family: 'Poppins', Arial, sans-serif;
-            font-size: 28px;
-            font-weight: 700;
-        }
-        .kpi-card .delta { font-size: 13px; margin-top: 4px; }
-        .no-data { color: var(--gray-mid); font-style: italic; }
-        @media (max-width: 900px) {
-            .kpi-cards { grid-template-columns: repeat(2, 1fr); }
-            .filters-bar { flex-direction: column; }
-        }
+        .total-row td:first-child { color: var(--desp-dark); }
+        .loading { text-align: center; padding: 40px; color: var(--text-secondary); }
+        .loading i { font-size: 28px; margin-bottom: 12px; display: block; color: var(--desp-primary); }
+        .error-msg { background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px; padding: 14px 20px; color: var(--text-negative); margin-bottom: 20px; font-size: 14px; }
+        @media (max-width: 900px) { .kpi-cards { grid-template-columns: repeat(2, 1fr); } .filters-bar { flex-direction: column; } }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1><i class="fas fa-chart-line"></i> CO Dashboard — Seguimiento de Ventas</h1>
-        <p>Análisis unificado de venta semanal | Datos actualizados diariamente</p>
+        <div class="header-logo">D</div>
+        <div><h1>CO Dashboard — Seguimiento de Ventas</h1><p>Análisis unificado de venta semanal | Datos actualizados diariamente</p></div>
     </div>
-
+    <div class="nav-tabs" style="display:flex;gap:4px;padding:0 40px;background:#141C2C;">
+        <a href="/" style="padding:12px 24px;color:white;text-decoration:none;font-size:14px;font-weight:600;border-bottom:3px solid #17CDDA;">Tabla Semanal</a>
+        <a href="/trend" style="padding:12px 24px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:14px;font-weight:600;border-bottom:3px solid transparent;">Tendencia 2026 vs 2025</a>
+    </div>
     <div class="container">
         {% if error %}
-            <div class="error-msg">
-                <strong>Error:</strong> {{ error }}
-                <p style="margin-top:8px; font-size:13px;">Verifica que la base de datos esté conectada.</p>
-            </div>
+            <div class="error-msg"><strong>Error:</strong> {{ error }}</div>
         {% else %}
         <div class="filters-bar">
-            <div class="filter-group">
-                <label>Semana</label>
-                <select id="week">
-                    {% for w in filter_options.weeks %}
-                        <option value="{{ w.label }}">{{ w.label }} — {{ w.start[:10] }} al {{ w.end[:10] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Marca</label>
-                <select id="marca">
-                    <option value="">Todas</option>
-                    {% for m in filter_options.marcas %}
-                        <option value="{{ m }}">{{ m }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>País</label>
-                <select id="pais">
-                    <option value="">Todos</option>
-                    {% for p in filter_options.paises %}
-                        <option value="{{ p }}">{{ p }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Canal</label>
-                <select id="canal">
-                    <option value="">Todos</option>
-                    {% for c in filter_options.canales %}
-                        <option value="{{ c }}">{{ c }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Producto</label>
-                <select id="producto">
-                    <option value="">Todos</option>
-                    {% for p in filter_options.productos %}
-                        <option value="{{ p }}">{{ p }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+            <div class="filter-group"><label>Semana</label><select id="week">{% for w in filter_options.weeks %}<option value="{{ w.label }}">{{ w.label }}</option>{% endfor %}</select></div>
+            <div class="filter-group"><label>Marca</label><select id="marca"><option value="">Todas</option>{% for m in filter_options.marcas %}<option value="{{ m }}">{{ m }}</option>{% endfor %}</select></div>
+            <div class="filter-group"><label>País</label><select id="pais"><option value="">Todos</option>{% for p in filter_options.paises %}<option value="{{ p }}">{{ p }}</option>{% endfor %}</select></div>
+            <div class="filter-group"><label>Canal</label><select id="canal"><option value="">Todos</option>{% for c in filter_options.canales %}<option value="{{ c }}">{{ c }}</option>{% endfor %}</select></div>
+            <div class="filter-group"><label>Producto</label><select id="producto"><option value="">Todos</option>{% for p in filter_options.productos %}<option value="{{ p }}">{{ p }}</option>{% endfor %}</select></div>
             <button class="btn-apply" onclick="loadData()">Aplicar</button>
             <button class="btn-clear" onclick="clearFilters()">Limpiar</button>
         </div>
-
+        <div class="date-info-bar" id="date-info"></div>
         <div class="kpi-cards" id="kpi-cards"></div>
-
         <div class="card">
-            <div class="card-title">
-                <i class="fas fa-table"></i> Venta por Marca
-            </div>
-            <div class="date-info" id="date-info"></div>
-            <div class="table-wrapper">
-                <div id="table-container">
-                    <div class="loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Cargando datos...</p>
-                    </div>
-                </div>
-            </div>
+            <div class="card-title"><i class="fas fa-table"></i> Venta por Marca</div>
+            <div class="table-wrapper"><div id="table-container"><div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Cargando datos...</p></div></div></div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i class="fas fa-tv"></i> Venta por Canal</div>
+            <div class="table-wrapper"><div id="canal-container"><div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Cargando datos...</p></div></div></div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i class="fas fa-suitcase"></i> Venta por Producto</div>
+            <div class="table-wrapper"><div id="producto-container"><div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Cargando datos...</p></div></div></div>
         </div>
         {% endif %}
     </div>
-
     <script>
         const filterOptions = {{ filter_options | tojson }};
-
-        if (filterOptions.weeks && filterOptions.weeks.length > 0) {
-            document.getElementById('week').value = filterOptions.weeks[filterOptions.weeks.length - 1].label;
-        }
-
-        function fmtMoney(v) {
-            if (v >= 1000000) return '$' + (v / 1000000).toFixed(1) + 'M';
-            if (v >= 1000) return '$' + (v / 1000).toFixed(1) + 'K';
-            return '$' + Math.round(v).toLocaleString();
-        }
+        if (filterOptions.weeks && filterOptions.weeks.length > 0) { document.getElementById('week').value = filterOptions.weeks[0].label; }
+        function fmtMoney(v) { if (v >= 1000000) return '$' + (v/1000000).toFixed(1) + 'M'; if (v >= 1000) return '$' + (v/1000).toFixed(1) + 'K'; return '$' + Math.round(v).toLocaleString(); }
         function fmtNum(v) { return Math.round(v).toLocaleString(); }
-        function fmtPct(v) {
-            if (v === null || v === undefined) return '<span class="no-data">—</span>';
-            const sign = v >= 0 ? '+' : '';
-            return sign + v.toFixed(1) + '%';
-        }
+        function fmtPct(v) { if (v === null || v === undefined) return '<span class="no-data">—</span>'; const s = v >= 0 ? '+' : ''; return s + v.toFixed(1) + '%'; }
         function fmtPctRaw(v) { return v.toFixed(1) + '%'; }
-        function classPct(v) {
-            if (v === null || v === undefined) return 'no-data';
-            return v >= 0 ? 'positive' : 'negative';
-        }
-
+        function classPct(v) { if (v === null || v === undefined) return 'no-data'; return v >= 0 ? 'positive' : 'negative'; }
+        function cleanDate(d) { if (!d) return ''; return d.substring(0, 10); }
         function loadData() {
             const params = new URLSearchParams();
-            const fields = ['week', 'marca', 'pais', 'canal', 'producto'];
-            fields.forEach(f => {
-                const val = document.getElementById(f).value;
-                if (val) params.append(f, val);
-            });
-
-            fetch('/api/data?' + params.toString())
-                .then(r => r.json())
-                .then(result => {
-                    if (result.error) {
-                        document.getElementById('table-container').innerHTML = '<div class="error-msg">' + result.error + '</div>';
-                        document.getElementById('kpi-cards').innerHTML = '';
-                        document.getElementById('date-info').innerHTML = '';
-                        return;
-                    }
-                    renderTable(result);
-                    renderKPIs(result);
-                    renderDates(result);
-                })
-                .catch(err => {
-                    document.getElementById('table-container').innerHTML = '<div class="error-msg">Error al cargar datos: ' + err + '</div>';
-                });
+            ['week','marca','pais','canal','producto'].forEach(f => { const v = document.getElementById(f).value; if (v) params.append(f, v); });
+            fetch('/api/data?' + params.toString()).then(r => r.json()).then(result => {
+                if (result.error) { document.getElementById('table-container').innerHTML = '<div class="error-msg">' + result.error + '</div>'; document.getElementById('kpi-cards').innerHTML = ''; document.getElementById('date-info').innerHTML = ''; return; }
+                renderTable(result); renderKPIs(result); renderDates(result); loadBreakdown();
+            }).catch(err => { document.getElementById('table-container').innerHTML = '<div class="error-msg">Error: ' + err + '</div>'; });
         }
-
         function renderDates(result) {
-            const d = result.dates;
-            if (!d || !d.current) { document.getElementById('date-info').innerHTML = ''; return; }
-            document.getElementById('date-info').innerHTML = `
-                <span><span class="label">Semana actual:</span> ${d.current.label} (${d.current.desde} → ${d.current.hasta})</span>
-                <span><span class="label">vs LY:</span> ${d.ly.label} (${d.ly.desde} → ${d.ly.hasta})</span>
-                <span><span class="label">vs L4W:</span> ${d.l4w.label}</span>
-            `;
+            const d = result.dates; if (!d || !d.current) { document.getElementById('date-info').innerHTML = ''; return; }
+            let l4wLabel = d.l4w.label || '';
+            if (l4wLabel.includes(' a ')) { const parts = l4wLabel.split(' a '); if (parts.length >= 2) l4wLabel = parts[0] + ' a ' + parts[parts.length - 1]; }
+            document.getElementById('date-info').innerHTML = '<span><span class="label">Semana actual:</span> <span class="val">' + d.current.label + '</span> (' + cleanDate(d.current.desde) + ' → ' + cleanDate(d.current.hasta) + ')</span><span><span class="label">vs LY:</span> <span class="val">' + d.ly.label + '</span> (' + cleanDate(d.ly.desde) + ' → ' + cleanDate(d.ly.hasta) + ')</span><span><span class="label">vs L4W:</span> <span class="val">' + l4wLabel + '</span></span>';
         }
-
         function renderKPIs(result) {
-            const total = result.data.find(r => r.marca === 'Total');
-            if (!total) { document.getElementById('kpi-cards').innerHTML = ''; return; }
-
+            const total = result.data.find(r => r.marca === 'Total'); if (!total) { document.getElementById('kpi-cards').innerHTML = ''; return; }
             const cards = [
-                {label: 'GB Semana', value: fmtMoney(total.gb), delta: total.gb_vs_ly !== null ? `<span class="${classPct(total.gb_vs_ly)}">${fmtPct(total.gb_vs_ly)}</span> vs LY` : ''},
-                {label: 'FVM', value: fmtMoney(total.fvm), delta: total.fvm_vs_ly !== null ? `<span class="${classPct(total.fvm_vs_ly)}">${fmtPct(total.fvm_vs_ly)}</span> vs LY` : ''},
-                {label: 'Bookings', value: fmtNum(total.bookings), delta: total.bookings_vs_ly !== null ? `<span class="${classPct(total.bookings_vs_ly)}">${fmtPct(total.bookings_vs_ly)}</span> vs LY` : ''},
-                {label: 'ASP', value: fmtMoney(total.asp), delta: total.asp_vs_ly !== null ? `<span class="${classPct(total.asp_vs_ly)}">${fmtPct(total.asp_vs_ly)}</span> vs LY` : ''},
+                {label: 'GB Semana', value: fmtMoney(total.gb), ly: total.gb_vs_ly, l4w: total.gb_vs_l4w},
+                {label: 'FVM', value: fmtMoney(total.fvm), ly: total.fvm_vs_ly, l4w: total.fvm_vs_l4w},
+                {label: 'Bookings', value: fmtNum(total.bookings), ly: total.bookings_vs_ly, l4w: total.bookings_vs_l4w},
+                {label: 'ASP', value: fmtMoney(total.asp), ly: total.asp_vs_ly, l4w: total.asp_vs_l4w},
             ];
-
-            document.getElementById('kpi-cards').innerHTML = cards.map(c => `
-                <div class="kpi-card">
-                    <div class="label">${c.label}</div>
-                    <div class="value">${c.value}</div>
-                    <div class="delta">${c.delta}</div>
-                </div>
-            `).join('');
+            document.getElementById('kpi-cards').innerHTML = cards.map(c => '<div class="kpi-card"><div class="left"><div class="label">' + c.label + '</div><div class="value">' + c.value + '</div></div><div class="right"><div class="delta-row"><span class="delta-label">vs LY</span> <span class="' + classPct(c.ly) + '">' + fmtPct(c.ly) + '</span></div><div class="delta-row"><span class="delta-label">vs L4W</span> <span class="' + classPct(c.l4w) + '">' + fmtPct(c.l4w) + '</span></div></div></div>').join('');
         }
-
         function renderTable(result) {
-            const data = result.data;
-            if (!data || data.length === 0) {
-                document.getElementById('table-container').innerHTML = '<p class="no-data">No hay datos para esta selección.</p>';
-                return;
-            }
-            let html = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Marca</th>
-                            <th>GB</th>
-                            <th>Share</th>
-                            <th>GB vs LY</th>
-                            <th>FVM vs LY</th>
-                            <th>Bookings vs LY</th>
-                            <th>ASP vs LY</th>
-                            <th>GB vs L4W</th>
-                            <th>FVM vs L4W</th>
-                            <th>Bookings vs L4W</th>
-                            <th>ASP vs L4W</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+            const data = result.data; if (!data || data.length === 0) { document.getElementById('table-container').innerHTML = '<p class="no-data">No hay datos.</p>'; return; }
+            let html = '<table><thead><tr><th>Marca</th><th>GB</th><th>Share</th><th>GB vs LY</th><th>FVM vs LY</th><th>Bk vs LY</th><th>ASP vs LY</th><th>Sch vs LY</th><th>CVR vs LY</th><th>GB vs L4W</th><th>FVM vs L4W</th><th>Bk vs L4W</th><th>ASP vs L4W</th><th>Sch vs L4W</th><th>CVR vs L4W</th></tr></thead><tbody>';
             data.forEach(row => {
-                const isTotal = row.marca === 'Total';
-                const cls = isTotal ? 'total-row' : '';
-                html += `<tr class="${cls}">`;
-                html += `<td>${row.marca}</td>`;
-                html += `<td>${fmtMoney(row.gb)}</td>`;
-                html += `<td>${fmtPctRaw(row.share)}</td>`;
-                html += `<td class="${classPct(row.gb_vs_ly)}">${fmtPct(row.gb_vs_ly)}</td>`;
-                html += `<td class="${classPct(row.fvm_vs_ly)}">${fmtPct(row.fvm_vs_ly)}</td>`;
-                html += `<td class="${classPct(row.bookings_vs_ly)}">${fmtPct(row.bookings_vs_ly)}</td>`;
-                html += `<td class="${classPct(row.asp_vs_ly)}">${fmtPct(row.asp_vs_ly)}</td>`;
-                html += `<td class="${classPct(row.gb_vs_l4w)}">${fmtPct(row.gb_vs_l4w)}</td>`;
-                html += `<td class="${classPct(row.fvm_vs_l4w)}">${fmtPct(row.fvm_vs_l4w)}</td>`;
-                html += `<td class="${classPct(row.bookings_vs_l4w)}">${fmtPct(row.bookings_vs_l4w)}</td>`;
-                html += `<td class="${classPct(row.asp_vs_l4w)}">${fmtPct(row.asp_vs_l4w)}</td>`;
+                const cls = row.marca === 'Total' ? 'total-row' : '';
+                html += '<tr class="' + cls + '"><td>' + row.marca + '</td><td>' + fmtMoney(row.gb) + '</td><td>' + fmtPctRaw(row.share) + '</td>';
+                html += '<td class="' + classPct(row.gb_vs_ly) + '">' + fmtPct(row.gb_vs_ly) + '</td>';
+                html += '<td class="' + classPct(row.fvm_vs_ly) + '">' + fmtPct(row.fvm_vs_ly) + '</td>';
+                html += '<td class="' + classPct(row.bookings_vs_ly) + '">' + fmtPct(row.bookings_vs_ly) + '</td>';
+                html += '<td class="' + classPct(row.asp_vs_ly) + '">' + fmtPct(row.asp_vs_ly) + '</td>';
+                html += '<td class="' + classPct(row.sch_vs_ly) + '">' + fmtPct(row.sch_vs_ly) + '</td>';
+                html += '<td class="' + classPct(row.cvr_vs_ly) + '">' + fmtPct(row.cvr_vs_ly) + '</td>';
+                html += '<td class="' + classPct(row.gb_vs_l4w) + '">' + fmtPct(row.gb_vs_l4w) + '</td>';
+                html += '<td class="' + classPct(row.fvm_vs_l4w) + '">' + fmtPct(row.fvm_vs_l4w) + '</td>';
+                html += '<td class="' + classPct(row.bookings_vs_l4w) + '">' + fmtPct(row.bookings_vs_l4w) + '</td>';
+                html += '<td class="' + classPct(row.asp_vs_l4w) + '">' + fmtPct(row.asp_vs_l4w) + '</td>';
+                html += '<td class="' + classPct(row.sch_vs_l4w) + '">' + fmtPct(row.sch_vs_l4w) + '</td>';
+                html += '<td class="' + classPct(row.cvr_vs_l4w) + '">' + fmtPct(row.cvr_vs_l4w) + '</td>';
                 html += '</tr>';
             });
             html += '</tbody></table>';
             document.getElementById('table-container').innerHTML = html;
         }
-
+        function loadBreakdown() {
+            const params = new URLSearchParams();
+            ['week','marca','pais'].forEach(f => { const v = document.getElementById(f).value; if (v) params.append(f, v); });
+            fetch('/api/breakdown?' + params.toString()).then(r => r.json()).then(result => {
+                if (result.error) return;
+                renderBreakdownTable('canal-container', result.canal, 'Canal');
+                renderBreakdownTable('producto-container', result.producto, 'Producto');
+            });
+        }
+        function renderBreakdownTable(containerId, data, label) {
+            if (!data || data.length === 0) { document.getElementById(containerId).innerHTML = '<p class="no-data">Sin datos</p>'; return; }
+            let html = '<table><thead><tr><th>' + label + '</th><th>GB</th><th>Share</th><th>GB vs LY</th><th>FVM vs LY</th><th>Bk vs LY</th><th>ASP vs LY</th><th>Sch vs LY</th><th>CVR vs LY</th><th>GB vs L4W</th><th>FVM vs L4W</th><th>Bk vs L4W</th><th>ASP vs L4W</th><th>Sch vs L4W</th><th>CVR vs L4W</th></tr></thead><tbody>';
+            data.forEach(row => {
+                const cls = row.name === 'Total' ? 'total-row' : '';
+                html += '<tr class="' + cls + '"><td>' + row.name + '</td><td>' + fmtMoney(row.gb) + '</td><td>' + fmtPctRaw(row.share) + '</td>';
+                html += '<td class="' + classPct(row.gb_vs_ly) + '">' + fmtPct(row.gb_vs_ly) + '</td>';
+                html += '<td class="' + classPct(row.fvm_vs_ly) + '">' + fmtPct(row.fvm_vs_ly) + '</td>';
+                html += '<td class="' + classPct(row.bookings_vs_ly) + '">' + fmtPct(row.bookings_vs_ly) + '</td>';
+                html += '<td class="' + classPct(row.asp_vs_ly) + '">' + fmtPct(row.asp_vs_ly) + '</td>';
+                html += '<td class="' + classPct(row.sch_vs_ly) + '">' + fmtPct(row.sch_vs_ly) + '</td>';
+                html += '<td class="' + classPct(row.cvr_vs_ly) + '">' + fmtPct(row.cvr_vs_ly) + '</td>';
+                html += '<td class="' + classPct(row.gb_vs_l4w) + '">' + fmtPct(row.gb_vs_l4w) + '</td>';
+                html += '<td class="' + classPct(row.fvm_vs_l4w) + '">' + fmtPct(row.fvm_vs_l4w) + '</td>';
+                html += '<td class="' + classPct(row.bookings_vs_l4w) + '">' + fmtPct(row.bookings_vs_l4w) + '</td>';
+                html += '<td class="' + classPct(row.asp_vs_l4w) + '">' + fmtPct(row.asp_vs_l4w) + '</td>';
+                html += '<td class="' + classPct(row.sch_vs_l4w) + '">' + fmtPct(row.sch_vs_l4w) + '</td>';
+                html += '<td class="' + classPct(row.cvr_vs_l4w) + '">' + fmtPct(row.cvr_vs_l4w) + '</td>';
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            document.getElementById(containerId).innerHTML = html;
+        }
         function clearFilters() {
-            const fields = ['marca', 'pais', 'canal', 'producto'];
-            fields.forEach(f => document.getElementById(f).value = '');
-            if (filterOptions.weeks && filterOptions.weeks.length > 0) {
-                document.getElementById('week').value = filterOptions.weeks[filterOptions.weeks.length - 1].label;
-            }
+            ['marca','pais','canal','producto'].forEach(f => document.getElementById(f).value = '');
+            if (filterOptions.weeks && filterOptions.weeks.length > 0) document.getElementById('week').value = filterOptions.weeks[0].label;
             loadData();
         }
-
         loadData();
     </script>
 </body>
